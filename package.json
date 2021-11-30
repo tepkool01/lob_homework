@@ -1,0 +1,16 @@
+{
+  "name": "lob_homework",
+  "version": "0.1.0",
+  "description": "An assignment from Lob to create an address suggester for postcards.",
+  "main": "server.js",
+  "repository": "git@github.com:tepkool01/lob_homework",
+  "author": "Michael Young <mvy1221@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "axios": "^0.24.0",
+    "express": "^4.17.1"
+  }
+}

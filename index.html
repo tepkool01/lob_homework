@@ -1,0 +1,54 @@
+<html>
+<head>
+    <title>Lob Interview - Address Suggester</title>
+    <script src="vue.js"></script>
+</head>
+<body>
+
+<div id="app">
+    <label>Address</label>
+    <input v-on:keyup="suggestAddresses" v-model="searchAddressStr" placeholder="3400 N. Charles St. Baltimore, MD 21218" size="75" maxlength="200" />
+    <h3>Results</h3>
+    <div id="address-suggestions">
+        <ul>
+            <li v-for="address in addresses">{{ address | concatenateValues }}</li>
+        </ul>
+    </div>
+</div>
+
+<script src="axios.js"></script> <!-- Included for more robust AJAX requests -->
+<script>
+    axios.defaults.baseURL = 'http://localhost:8080' // Set the base URL for all API requests within this app
+
+	new Vue({
+		el: '#app',
+		data: {
+			searchAddressStr: '',
+			addresses: [],
+		},
+        filters: {
+			// Concatenates the values of the address object to make the addresses easier to list/read
+			concatenateValues: function(addressObj) {
+                return Object.values(addressObj).join(' ')
+			}
+        },
+		methods: {
+			// Reaches out to API for suggestions based on the user's address string
+			async suggestAddresses() {
+				console.log('>>suggestAddresses()', this.searchAddressStr)
+                try {
+					let response = await axios.get('/addresses', {
+						params: {
+							searchStr: this.searchAddressStr,
+                        },
+					})
+                    this.addresses = response.data
+                } catch (err) {
+					console.error("/addresses call failed with params", this.searchAddressStr)
+                }
+			}
+		},
+	})
+</script>
+</body>
+</html>
