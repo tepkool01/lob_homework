@@ -11,12 +11,12 @@ const addressBook = new AddressBookModel()
 exports.findAll = (searchService) => {
 	return function (req, res) {
 		console.debug(">>findAll", req.query.searchStr)
-
+		let result = []
 		let addresses = addressBook.getAddresses()
 		if (req.query.hasOwnProperty('searchStr')) {
-			addresses = searchService.findMatches(req.query.searchStr, addresses)
+			result = searchService.findMatches(req.query.searchStr, addresses)
 		}
-		res.status(200).json(addresses)
+		res.status(200).json(result)
 	}
 }
 
@@ -40,9 +40,6 @@ exports.create = (req, res) => {
 	let addresses = addressBook.getAddresses()
 	req.body['uuid'] = uuidv4() // generate random UUID for identification of this resource
 	addresses.push(req.body)
-	console.log(addresses)
-
-	addressBook.setAddresses(addresses)
 
 	// Save the new address
 	try {
@@ -64,18 +61,22 @@ exports.create = (req, res) => {
  */
 exports.update = (req, res) => {
 	console.debug(">>update", req.body, req.params)
+	let addresses = addressBook.getAddresses()
 
-	// Attempted to change to an existing record
-	if (addressBook.getAddressIndex(req.body) !== -1) {
-		return res.sendStatus(409)
+	// grabbing the position of the element in the addresses array (model state) to edit; returns -1 if can't find, in
+	// which case we will need to create the record (PUT verb idempotent spec)
+	const addressUpdateIndex = addressBook.getAddressIndexByUUID(req.params.addressID)
+
+	// Can't find the record to update, so we will need to add it
+	if (addressUpdateIndex === -1) {
+		addresses.push(req.body)
+		return res.status(201).json(req.body)
 	}
+	// Found record -- remove item to be updated and replace it with the request payload
+	addresses.splice(addressUpdateIndex, 1, req.body)
+	addressBook.save()
 
-	// let addresses = addressBook.getAddresses()
-	// addresses[req.params.id]
-	//
-	// res.sendStatus(200) // if updated
-
-	res.sendStatus(201) // if created (good if someone else deletes it, while you were editing)
+	res.status(200).json(req.body) // if updated
 }
 
 /**
@@ -88,15 +89,14 @@ exports.delete = (req, res) => {
 	console.debug(">>delete", req.params)
 
 	// Try to locate the resource position
-	const addressIndex = addressBook.getAddressIndexByUUID(req.params.id)
+	const addressIndex = addressBook.getAddressIndexByUUID(req.params.addressID)
 	if (addressIndex === -1) {
 		return res.sendStatus(204) // never a 404, as that exposes what exists
 	}
 
 	// Delete the element, and save
 	let addresses = addressBook.getAddresses()
-	addresses.splice(addressIndex, 1)
-	addressBook.setAddresses(addresses)
+	addresses.splice(addressIndex, 1) // pass by reference allows us to modify this and have it affect the class
 	addressBook.save()
 
 	res.sendStatus(204)

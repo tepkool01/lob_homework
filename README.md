@@ -36,11 +36,11 @@ The project requirements section extrapolates the details from the raw requireme
 guesses, alternative strategies, edge cases, and anything relevant to the project's requirements are included to support
 the decisions made.
 
-### Distilled Requirements
+### Interpreted Requirements
 - [x] The system shall have an address field to input the recipient's address.
 - [x] The system shall suggest matching addresses based on user input's partial match of the respective addresses.
 - [x] The API shall filter addresses from the address file based on text input in the address field.
-- [ ] The system shall implement basic CRUD (Create, Read, Update, Delete) 'manage' operations on the addresses.json dataset.
+- [x] The system shall implement basic CRUD (Create, Read, Update, Delete) 'manage' operations on the addresses.json dataset.
 - [x] The API shall run continuously without user-driven fault for the duration of the interview (60 minutes). 
 
 ### Non-Functional Requirements

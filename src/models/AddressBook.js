@@ -46,14 +46,6 @@ module.exports = class AddressBook {
 	}
 
 	/**
-	 * Sets the addresses array to a replacement array
-	 * @param addresses
-	 */
-	setAddresses(addresses) {
-		this.addresses = addresses
-	}
-
-	/**
 	 * Updates the addresses array with the data saved in the JSON file
 	 * Is also a valuable mechanism to 'reset' or 'seed'/re-seed the data
 	 */
@@ -73,6 +65,7 @@ module.exports = class AddressBook {
 	 * @private
 	 */
 	_stripUUID(address) {
+		// console.debug('>>stripUUID', address)
 		const { uuid, ...addressWithoutUUID } = address
 		return addressWithoutUUID
 	}

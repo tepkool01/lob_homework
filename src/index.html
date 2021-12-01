@@ -6,6 +6,7 @@
 <body>
 
 <div id="app">
+    <!-- Address search suggestions component -->
     <h2>Address Search 'suggestions'</h2>
     <label>Address</label>
     <input v-on:keyup="suggestAddresses" v-model="searchAddressStr" placeholder="3400 N. Charles St. Baltimore, MD 21218" size="75" maxlength="200" />
@@ -37,14 +38,14 @@
             <th>Edit</th>
             <th>Delete</th>
         </tr>
-        <tr v-for="address in addresses" :key="address.uuid">
-            <td><input :value="address.line1"></td>
-            <td>{{ address.line2 }}</td>
-            <td>{{ address.city }}</td>
-            <td>{{ address.state }}</td>
-            <td>{{ address.zip }}</td>
-            <td><button>Change</button></td>
-            <td><button>Delete</button></td>
+        <tr v-for="(address, index) in addresses" :key="address.uuid">
+            <td><input v-model="address.line1" :value="address.line1"></td>
+            <td><input v-model="address.line2" :value="address.line2"></td>
+            <td><input v-model="address.city" :value="address.city"></td>
+            <td><input v-model="address.state" :value="address.state"></td>
+            <td><input v-model="address.zip" :value="address.zip"></td>
+            <td><button @click="updateAddress(address, index)">Change</button></td>
+            <td><button @click="deleteAddress(address, index)">Delete</button></td>
         </tr>
     </table>
 </div>
@@ -82,7 +83,7 @@
 		methods: {
 			// Reaches out to API for suggestions based on the user's address string
 			async suggestAddresses() {
-				console.log('>>suggestAddresses()', this.searchAddressStr)
+				console.debug('>>suggestAddresses()', this.searchAddressStr)
                 try {
 					let response = await axios.get('/addresses', { params: { searchStr: this.searchAddressStr }})
                     this.suggestedAddresses = response.data
@@ -90,8 +91,9 @@
 					console.error('suggest addresses failed with params', this.searchAddressStr)
                 }
 			},
+            // Gets all addresses for the management of addresses (edit/delete)
 			async getAddresses() {
-				console.log('>>getAddresses()')
+				console.debug('>>getAddresses()')
 				try {
 					let response = await axios.get('/addresses')
 					this.addresses = response.data
@@ -99,18 +101,42 @@
 					console.error("failed to retrieve addresses")
 				}
 			},
+            // Creates a new address to be suggested/searched, saved to data store. Awaiting the response for a uuid (used for edits/deletes)
             async createAddress() {
-				console.log('>>createAddress')
+				console.debug('>>createAddress')
                 try {
-					let response = await axios.post('/addresses', this.addressNew)
-                    this.addresses.push(response.data)
+					const response = await axios.post('/addresses', this.addressNew)
+					this.addresses.push(response.data)
                 } catch (err) {
 					console.error('create address failed with payload', this.addressNew)
                 }
+            },
+
+            // updates the address (full replacement) or creates a new record if it did not exist
+            async updateAddress(address, index) {
+				console.debug('>>updateAddress')
+				try {
+					const response = await axios.put(`/addresses/${address.uuid}`, address)
+					this.addresses.splice(index, 1, response.data)
+				} catch (err) {
+					console.error('create address failed with payload', this.addressNew)
+				}
+            },
+
+            // removes an address from the address records, will succeed if record does not exist
+			async deleteAddress(address, index) {
+				console.debug('>>deleteAddressByIndex')
+				try {
+					await axios.delete(`/addresses/${address.uuid}`)
+                    this.addresses.splice(index, 1)
+				} catch (err) {
+					console.error('create address failed with payload', this.addressNew)
+				}
             }
 		},
+        // when the component comes into view/usability
         mounted() {
-            this.getAddresses() // Seed the list of all addresses
+            this.getAddresses() // Seed the list of all addresses for searching/suggesting, as well as the management list
         },
 	})
 </script>

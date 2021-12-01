@@ -1,10 +1,13 @@
 const addressHandler = require('../src/addressHandler')
+const AddressBookModel = require('../src/models/AddressBook')
 const simpleSearchService = require('../src/services/search/simple')
 const httpMocks = require('node-mocks-http');
 
-// The tests below validate the basic functionality requested.
+const addressBook = new AddressBookModel()
 
+// The tests below validate the basic functionality requested.
 describe('AddressHandler route', () => {
+	let createdAddress = {}
 	describe('filter results based on search string', () => {
 		it('should show 3 results when provided a "1600" search string', () => {
 			const request = httpMocks.createRequest({
@@ -36,7 +39,7 @@ describe('AddressHandler route', () => {
 		})
 	})
 	describe('create new address', () => {
-		it('should be increment the total records by 1', () => {
+		it('should return the created address with a UUID', () => {
 			const request = httpMocks.createRequest({
 				method: 'POST',
 				url: '/addresses',
@@ -48,42 +51,55 @@ describe('AddressHandler route', () => {
 				},
 			})
 			const response = httpMocks.createResponse()
-			addressHandler.create(simpleSearchService)
-			// const result = response._getJSONData() TODO
-			console.log("Tested")
+			addressHandler.create(request, response)
+			createdAddress = response._getJSONData()
+			expect(createdAddress).toHaveProperty('uuid')
+			expect(createdAddress.line1).toEqual('1 Hobbiton Hill')
+			expect(createdAddress.city).toEqual('The Shire')
+			expect(createdAddress.state).toEqual('MD')
+			expect(createdAddress.zip).toEqual('12345')
 		})
 	})
 	describe('modify address zip code', () => {
-		it('should be increment the total records by 1', () => {
+		it('reflect the updated zip ', () => {
 			const request = httpMocks.createRequest({
-				method: 'PATCH',
-				url: '/addresses',
+				method: 'PUT',
+				url: `/addresses/${createdAddress.uuid}`,
 				params: {
-					id: 'asdf'
+					addressID: createdAddress.uuid,
 				},
 				body: {
-					zip: "54321"
+					uuid: createdAddress.uuid,
+					line1: createdAddress.line1,
+					line2: createdAddress.line2,
+					city: createdAddress.city,
+					state: createdAddress.state,
+					zip: "99999",
 				},
 			})
 			const response = httpMocks.createResponse()
-			addressHandler.update(simpleSearchService)
-			// const result = response._getJSONData() TODO
-			console.log("Tested")
+			addressHandler.update(request, response)
+			const result = response._getJSONData()
+			expect(result.zip).toEqual('99999')
 		})
 	})
 	describe('delete the test address', () => {
 		it('should decrement the total records by 1', () => {
+			addressBook.hydrate() // refreshing from file before finding the created record for deletion
+			// exists before deletion
+			expect(addressBook.getAddressIndexByUUID(createdAddress.uuid)).toBeGreaterThan(-1)
+
 			const request = httpMocks.createRequest({
 				method: 'DELETE',
-				url: '/addresses',
+				url: `/addresses/${createdAddress.uuid}`,
 				params: {
-					id: 'asdf'
+					addressID: createdAddress.uuid,
 				},
 			})
 			const response = httpMocks.createResponse()
-			addressHandler.delete(simpleSearchService)
-			// const result = response._getJSONData() TODO
-			console.log("Tested")
+			addressHandler.delete(request, response)
+			addressBook.hydrate() // need to re-pull from file to make sure it is gone
+			expect(addressBook.getAddressIndexByUUID(createdAddress.uuid)).toEqual(-1)
 		})
 	})
 })
