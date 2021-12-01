@@ -64,7 +64,6 @@ the decisions made.
 ---
 ## Future considerations
 ### Feature improvements and changes
-- Dependency Injection and Inversion of the search methods. Inject into the List call, then leverage an interface to swap out different search algorithms, i.e. cosine similarity
 - Geolocation to better rank/sort return results, i.e. if client in New Jersey and types 'New', have New Jersey come up ranked higher than New Hampshire.
 - Pagination (or re-use suggestions as part of the search API)
 - Bolding parts of the match
@@ -77,12 +76,12 @@ the decisions made.
 #### Structural Improvements
 - Add a better logging utility for the backend
 - API layer abstraction, i.e. API Gateway, based on OpenAPI standards with swagger
-- 100% statement and branch coverage, testing of the API contract
+- 100% statement and branch coverage, testing of the API contract (models)
+- More adaptable model conforming to standards
 - front-end framework built with best practices, skeleton structure appropriate, separation of client/server
 - potentially dockerize/kube/native cloud microservice the backend
 - caching of frequent lookups to reduce DB load
 - potentially using sockets for performance improvement
-- sanitization of inputs for security
 - API key, and relevant security headers
 - System logging of requests
 - Pipeline tests, DAST for security, fuzzers, edge testing
