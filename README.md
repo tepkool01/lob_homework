@@ -21,13 +21,19 @@ Tools, languages, and various software required to run this program. These are t
 2. Run `yarn run dev` to run the development version of the application
 
 ### Testing
-todo
+- `yarn run test`
 
 ---
 ## API Design
-| Action | Path | Payload | QueryParams                        | Example | Description |
-|--------|------|---------|------------------------------------|---------|-------------|
- | GET   | /addresses | None | **str**: String, **limit**: Number | ex | searches |
+A rough sketch of the API endpoints being used. Normally swagger/openAPI definitions with models would be better, however this is rudimentary. No examples, or responses will be included.
+
+| Action | Path                      | Payload                                                                                  | QueryParams                        | Description                                                                        |
+|--------|---------------------------|------------------------------------------------------------------------------------------|------------------------------------|------------------------------------------------------------------------------------|
+ | GET    | /addresses                | None                                                                                     | **str**: String, **limit**: Number | searches/matches addresses if search query presented, otherwise returns everything |
+| POST   | /addresses                | `{uuid: String, line1: String, line2: string, city: String, state: String, zip: String}` | None                               | creates a new address record                                                       |
+| PUT    | /addresses/**:addressID** | `{uuid: String, line1: String, line2: string, city: String, state: String, zip: String}` | None                               | Replaces/Edits an address object; if doesn't exist, creates it (rare)              |
+| DELETE | /addresses/**:addressID** | None                                                                                     | None                               | Deletes an address entry from the data store                                       |
+
 
 ---
 

@@ -13,6 +13,7 @@ exports.findAll = (searchService) => {
 		console.debug(">>findAll", req.query.searchStr)
 		let result = []
 		let addresses = addressBook.getAddresses()
+		result = addresses // result is all addresses if no searchStr is supplied
 		if (req.query.hasOwnProperty('searchStr')) {
 			result = searchService.findMatches(req.query.searchStr, addresses)
 		}
@@ -76,7 +77,7 @@ exports.update = (req, res) => {
 	addresses.splice(addressUpdateIndex, 1, req.body)
 	addressBook.save()
 
-	res.status(200).json(req.body) // if updated
+	res.status(200).json(req.body)
 }
 
 /**

@@ -1,0 +1,1 @@
+// could be implemented based on this https://stackoverflow.com/questions/10473745/compare-strings-javascript-return-of-likely
