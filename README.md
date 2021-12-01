@@ -37,11 +37,11 @@ guesses, alternative strategies, edge cases, and anything relevant to the projec
 the decisions made.
 
 ### Distilled Requirements
-- [ ] The system shall have an address field to input the recipient's address.
-- [ ] The system shall suggest matching addresses based on user input's partial match of the respective addresses.
-- [ ] The API shall filter addresses from the address file based on text input in the address field.
+- [x] The system shall have an address field to input the recipient's address.
+- [x] The system shall suggest matching addresses based on user input's partial match of the respective addresses.
+- [x] The API shall filter addresses from the address file based on text input in the address field.
 - [ ] The system shall implement basic CRUD (Create, Read, Update, Delete) 'manage' operations on the addresses.json dataset.
-- [ ] The API shall run continuously without user-driven fault for the duration of the interview (60 minutes). 
+- [x] The API shall run continuously without user-driven fault for the duration of the interview (60 minutes). 
 
 ### Non-Functional Requirements
 1. Share with the team 'methodology and best practices when designing an API / microservice'.
@@ -66,8 +66,10 @@ the decisions made.
 - ML added, potentially recommending KNN if address is narrow enough
 - Sanitation on both server/client
 - CSS added, build for mobile
+- error messaging
 
 #### Structural Improvements
+- Add a better logging utility for the backend
 - API layer abstraction, i.e. API Gateway, based on OpenAPI standards with swagger
 - 100% statement and branch coverage, testing of the API contract
 - front-end framework built with best practices, skeleton structure appropriate, separation of client/server
@@ -85,3 +87,7 @@ the decisions made.
 - Code smell checker, i.e. SonarQube, with appropriate rules set
 - Terraform or similar to aid deployment and maintain state when deploying to cloud
 - Dependency inject the database so we can swap easily
+
+#### Assumptions
+- Had to add IDs to the addresses, otherwise they would've had numerous problems with sorting and the API
+  - thought of various ways of accomplishing this without adding the IDs, none of them were satisfactory

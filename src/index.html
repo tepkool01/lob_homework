@@ -1,0 +1,118 @@
+<html>
+<head>
+    <title>Lob Interview - Address Suggester</title>
+    <script src="lib/vue-2.6.11.js"></script>
+</head>
+<body>
+
+<div id="app">
+    <h2>Address Search 'suggestions'</h2>
+    <label>Address</label>
+    <input v-on:keyup="suggestAddresses" v-model="searchAddressStr" placeholder="3400 N. Charles St. Baltimore, MD 21218" size="75" maxlength="200" />
+    <h3>Results</h3>
+    <div id="address-suggestions">
+        <ul>
+            <li v-for="address in suggestedAddresses">{{ address | concatenateValues }}</li>
+        </ul>
+    </div>
+
+    <!-- Create component -->
+    <h2>Create Address</h2>
+    <label>Line 1</label><input v-model="addressNew.line1" />
+    <label>Line 2</label><input v-model="addressNew.line2" />
+    <label>City</label><input v-model="addressNew.city" />
+    <label>State</label><input v-model="addressNew.state" />
+    <label>Zip</label><input v-model="addressNew.zip" />
+    <button @click="createAddress">Create</button>
+
+    <!-- List all addresses, edit, delete -->
+    <h2>Address List</h2>
+    <table>
+        <tr>
+            <th>Line 1</th>
+            <th>Line 2</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Zip</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+        <tr v-for="address in addresses" :key="address.uuid">
+            <td><input :value="address.line1"></td>
+            <td>{{ address.line2 }}</td>
+            <td>{{ address.city }}</td>
+            <td>{{ address.state }}</td>
+            <td>{{ address.zip }}</td>
+            <td><button>Change</button></td>
+            <td><button>Delete</button></td>
+        </tr>
+    </table>
+</div>
+
+<script src="lib/axios-0.24.0.js"></script> <!-- Included for more robust AJAX requests -->
+<script>
+    axios.defaults.baseURL = 'http://localhost:8080' // Set the base URL for all API requests within this app
+
+	new Vue({
+		el: '#app',
+		data: {
+			// bound data to the create address form
+			addressNew: {
+				line1: '',
+				line2: '',
+				city: '',
+				state: '',
+				zip: ''
+			},
+
+            // Search/filter data
+			searchAddressStr: '',
+			suggestedAddresses: [],
+
+            // All addresses
+            addresses: [],
+		},
+        filters: {
+			// Concatenates the values of the address object to make the addresses easier to list/read
+			concatenateValues: function(addressObj) {
+				const {uuid, ...addressWithoutUUID} = addressObj
+                return Object.values(addressWithoutUUID).join(' ')
+			},
+        },
+		methods: {
+			// Reaches out to API for suggestions based on the user's address string
+			async suggestAddresses() {
+				console.log('>>suggestAddresses()', this.searchAddressStr)
+                try {
+					let response = await axios.get('/addresses', { params: { searchStr: this.searchAddressStr }})
+                    this.suggestedAddresses = response.data
+                } catch (err) {
+					console.error('suggest addresses failed with params', this.searchAddressStr)
+                }
+			},
+			async getAddresses() {
+				console.log('>>getAddresses()')
+				try {
+					let response = await axios.get('/addresses')
+					this.addresses = response.data
+				} catch (err) {
+					console.error("failed to retrieve addresses")
+				}
+			},
+            async createAddress() {
+				console.log('>>createAddress')
+                try {
+					let response = await axios.post('/addresses', this.addressNew)
+                    this.addresses.push(response.data)
+                } catch (err) {
+					console.error('create address failed with payload', this.addressNew)
+                }
+            }
+		},
+        mounted() {
+            this.getAddresses() // Seed the list of all addresses
+        },
+	})
+</script>
+</body>
+</html>
